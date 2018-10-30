@@ -13,7 +13,7 @@ import android.widget.TextView
 class TimerActivity : AppCompatActivity() {
 
     private var timerTime: Int = 0
-    var result_string: String = ""
+    var resultString: String = ""
 
     lateinit var timer: CountDownTimer
 
@@ -25,22 +25,23 @@ class TimerActivity : AppCompatActivity() {
         val button = this.findViewById<View>(R.id.button) as Button
         button.text = "START"
         button.setOnClickListener {
-            if (button.text != "START") {
+            if (button.text == "START") {
                 startTimer()
-                button.text = "START"
+                button.text = "STOP"
             } else {
                 canselTimer()
-                button.text = "STOP"
+                button.text = "START"
             }
         }
 
         val text = this.findViewById<View>(R.id.textView) as TextView
         text.text = "один"
         val units = this.resources.getStringArray(R.array.units)
+        val firstTens = this.resources.getStringArray(R.array.firstTens)
         val tens = this.resources.getStringArray(R.array.tens)
         val hundreds = this.resources.getStringArray(R.array.hundreds)
         
-        timer = timerObject(units, tens, hundreds)
+        timer = timerObject(units, firstTens, tens, hundreds)
     }
 
     private fun startTimer() {
@@ -54,6 +55,7 @@ class TimerActivity : AppCompatActivity() {
 
     private fun timerObject(
         units: Array<String>,
+        firstTens: Array<String>,
         tens: Array<String>,
         hundreds: Array<String>): CountDownTimer {
         return object : CountDownTimer(1000000, 1000) {
@@ -62,27 +64,43 @@ class TimerActivity : AppCompatActivity() {
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                result_string = ""
+                resultString = ""
                 timerTime++
                 Log.d("TimerActivity", timerTime.toString())
-                when {
-                    timerTime / 100 != 0 -> {
-                        result_string += hundreds[timerTime / 100 - 1]
+                if (timerTime / 100 != 0) {
+                    resultString += hundreds[timerTime / 100 - 1]
+                }
+                if (timerTime / 10 % 10 > 1) {
+                    if (!resultString.isEmpty()) {
+                        resultString += " "
                     }
-                    timerTime / 10 % 10 > 1 -> {
-                        result_string += tens[timerTime / 10 % 10 - 1]
+                    resultString += tens[timerTime / 10 % 10 - 1]
+                }
+                if (timerTime / 10 % 10 == 1) {
+                    if (!resultString.isEmpty()) {
+                        resultString += " "
                     }
-                    timerTime %10 != 0 -> {
-                        result_string += units[timerTime %10 - 1]
+                    resultString += if (timerTime % 10 == 0) {
+                        tens[0]
+                    } else {
+                        firstTens[timerTime % 10 - 1]
+                    }
+                }
+                if (timerTime % 10 != 0) {
+                    if (!resultString.isEmpty()) {
+                        resultString += " "
+                    }
+                    if (timerTime / 10 % 10 != 1) {
+                        resultString += units[timerTime % 10 - 1]
                     }
                 }
 
                 if (timerTime == 1000) {
-                    result_string = this@TimerActivity.getString(R.string.thousand)
+                    resultString = this@TimerActivity.getString(R.string.thousand)
                 }
 
                 val textView = this@TimerActivity.findViewById<View>(R.id.textView) as TextView
-                textView.text = result_string
+                textView.text = resultString
             }
         }
     }

@@ -15,7 +15,7 @@
         <item>восемь</item>
         <item>девять</item>
     </string-array>
-    <string-array name="first_tens">
+    <string-array name="firstTens">
         <item>одиннадцать</item>
         <item>двенадцать</item>
         <item>тринадцать</item>
