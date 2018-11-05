@@ -13,7 +13,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        onRestoreInstanceState(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         object : CountDownTimer(2000, 1000) {
@@ -25,6 +24,8 @@ class MainActivity : AppCompatActivity() {
                 timerTime++
                 if (timerTime == 2) {
                     val intent = Intent(this@MainActivity, TimerActivity::class.java)
+                    this.cancel()
+                    this.onFinish()
                     this@MainActivity.finish()
                     startActivity(intent)
                 }

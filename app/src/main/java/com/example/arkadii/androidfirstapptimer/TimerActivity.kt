@@ -5,52 +5,54 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.widget.Button
-import android.os.PersistableBundle
-import android.util.Log
 import android.widget.TextView
 
 
 class TimerActivity : AppCompatActivity() {
 
-    private var timerTime: Int = 0
-    var resultString: String = ""
+    var timerTime: Int = 0
+    var currentNumber: String = ""
+    var buttonCapture: String = ""
 
-    lateinit var timer: CountDownTimer
+    private lateinit var timer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        onRestoreInstanceState(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
         val button = this.findViewById<View>(R.id.button) as Button
         button.text = "START"
         button.setOnClickListener {
             if (button.text == "START") {
-                startTimer()
-                button.text = "STOP"
+                timer.start()
+                buttonCapture = "STOP"
+                button.text = buttonCapture
             } else {
-                canselTimer()
-                button.text = "START"
+                timer.cancel()
+                timerTime = 0
+                buttonCapture = "START"
+                button.text = buttonCapture
             }
         }
 
         val text = this.findViewById<View>(R.id.textView) as TextView
-        text.text = "один"
+        text.text = currentNumber
         val units = this.resources.getStringArray(R.array.units)
         val firstTens = this.resources.getStringArray(R.array.firstTens)
         val tens = this.resources.getStringArray(R.array.tens)
         val hundreds = this.resources.getStringArray(R.array.hundreds)
-        
         timer = timerObject(units, firstTens, tens, hundreds)
-    }
+        if (savedInstanceState != null) {
+            timerTime = savedInstanceState.getString(this.getString(R.string.timerTime), "0").toInt()
+            currentNumber = savedInstanceState.getString(this.getString(R.string.currentNumber), currentNumber)
+            buttonCapture = savedInstanceState.getString(this.getString(R.string.buttonCapture), buttonCapture)
 
-    private fun startTimer() {
-        timer.start()
-    }
-
-    private fun canselTimer() {
-        timerTime = 0
-        timer.cancel()
+            if (timerTime != 0) {
+                timer.start()
+                buttonCapture = "STOP"
+                button.text = buttonCapture
+            }
+        }
     }
 
     private fun timerObject(
@@ -58,15 +60,24 @@ class TimerActivity : AppCompatActivity() {
         firstTens: Array<String>,
         tens: Array<String>,
         hundreds: Array<String>): CountDownTimer {
-        return object : CountDownTimer(1000000, 1000) {
+        return object : CountDownTimer(1001000, 1000) {
             override fun onFinish() {
+                this.cancel()
                 timerTime = 0
+                val button = this@TimerActivity.findViewById<View>(R.id.button) as Button
+                buttonCapture = "START"
+                button.text = buttonCapture
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                resultString = ""
+                var resultString = ""
                 timerTime++
-                Log.d("TimerActivity", timerTime.toString())
+
+                if (timerTime == 1000) {
+                    resultString = this@TimerActivity.getString(R.string.thousand)
+                    onFinish()
+                }
+
                 if (timerTime / 100 != 0) {
                     resultString += hundreds[timerTime / 100 - 1]
                 }
@@ -95,26 +106,32 @@ class TimerActivity : AppCompatActivity() {
                     }
                 }
 
-                if (timerTime == 1000) {
-                    resultString = this@TimerActivity.getString(R.string.thousand)
-                }
-
                 val textView = this@TimerActivity.findViewById<View>(R.id.textView) as TextView
                 textView.text = resultString
+                currentNumber = resultString
             }
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        outState?.putInt(this.getString(R.string.timer), timerTime)
-        super.onSaveInstanceState(outState, outPersistentState)
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putString(this.getString(R.string.timerTime), timerTime.toString())
+        outState?.putString(this.getString(R.string.currentNumber), currentNumber)
+        outState?.putString(this.getString(R.string.buttonCapture), buttonCapture)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         if (savedInstanceState != null) {
-            timerTime = savedInstanceState.getInt(this.getString(R.string.timer))
+            timerTime = savedInstanceState.getString(this.getString(R.string.timerTime), "0").toInt()
+            currentNumber = savedInstanceState.getString(this.getString(R.string.currentNumber), currentNumber)
+            buttonCapture = savedInstanceState.getString(this.getString(R.string.buttonCapture), buttonCapture)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        timer.cancel()
     }
 
 }

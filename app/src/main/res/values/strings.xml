@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">AndroidFirstAppTimer</string>
 
-    <string name="main_timer"></string>
-    <string name="timer"></string>
+    <string name="main_timer">main_timer</string>
+    <string name="timerTime">timerTime</string>
+    <string name="timerTime1">timerTime1</string>
+    <string name="currentNumber">currentNumber</string>
+    <string name="buttonCapture">buttonCapture</string>
 
     <string-array name="units">
         <item>один</item>
@@ -40,7 +43,6 @@
     <string-array name="hundreds">
         <item>сто</item>
         <item>двести</item>
-        <item>триста</item>
         <item>триста</item>
         <item>четыреста</item>
         <item>пятьсот</item>
